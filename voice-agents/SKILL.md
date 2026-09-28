@@ -8,7 +8,7 @@ description: >-
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "3.3"
+  version: "3.4"
 ---
 
 # Voice Agents — Sarvam AI
@@ -132,7 +132,8 @@ const client = new SarvamAIClient({ apiSubscriptionKey: "YOUR_SARVAM_API_KEY" })
 | **LiveKit: `flush_signal=True`** | Required on `sarvam.STT` for speech start/end events and proper turn-taking. |
 | **TTS param is `speaker`** | Both LiveKit and Pipecat plugins use `speaker="shubh"` — NOT `voice=`. |
 | **Pipecat class names** | `SarvamSTTService`/`SarvamTTSService`/`SarvamLLMService` from `pipecat.services.sarvam.stt/.tts/.llm` — NOT `SarvamSTT`. LLM model goes in `SarvamLLMService.Settings(model=...)`, system prompt in `LLMContext` messages. |
-| **`sarvam-30b` is deprecated** | Docs now mark it "Deprecated" outright (not just legacy), migrate to Sarvam-105B. Sarvam also ships `sarvam-105b-conversations` — a 32K-context variant post-trained specifically for real-time dialogue/voice agents, i.e. the slot `sarvam-30b` used to fill — use it over plain `sarvam-105b` for voice where available. Older Pipecat builds hard-reject non-105b models (`SarvamLLMService._SUPPORTED_MODELS = frozenset({"sarvam-105b"})`, raises `ValueError` at construction) — check your installed `pipecat-ai`/`livekit-agents` plugin version supports `sarvam-105b-conversations` before switching; fall back to `sarvam-105b` if it doesn't. |
+| **`sarvam-30b` is deprecated — and now hard-errors at the API** | Verified live: calling `sarvam-30b` via the chat API now returns `400`: `"Model 'sarvam-30b' has been deprecated. Please use one of the available models instead: sarvam-105b, sarvam-105b-conversations."` A Pipecat pipeline built on `sarvam-30b` will still *construct* fine (see below) but every LLM turn will start failing at runtime — this isn't a future risk, it's already broken if you're on it. |
+| **`sarvam-105b-conversations` may not be in your installed Pipecat's allowlist yet** | Sarvam ships `sarvam-105b-conversations` — a 32K-context variant post-trained specifically for real-time dialogue/voice agents, i.e. the slot `sarvam-30b` used to fill. Verified live against `pipecat-ai==0.0.108`: `SarvamLLMService._SUPPORTED_MODELS` is `frozenset({"sarvam-105b", "sarvam-105b-32k", "sarvam-30b", "sarvam-30b-16k"})` — it does **not** include `sarvam-105b-conversations` yet, and constructing `SarvamLLMService(settings=SarvamLLMService.Settings(model="sarvam-105b-conversations"))` raises `ValueError: Unsupported Sarvam LLM model 'sarvam-105b-conversations'. Allowed values: sarvam-105b, sarvam-105b-32k, sarvam-30b, sarvam-30b-16k.` immediately. Also note the same allowlist still happily accepts `sarvam-30b`/`sarvam-30b-16k` at construction time even though those are now dead at the API level (see row above) — construction succeeding is not a signal the model works. Check your installed `pipecat-ai` version's allowlist before switching to `sarvam-105b-conversations`; use plain `sarvam-105b` if it's not there yet. |
 | **`max_tokens` budget** | Sarvam models reason internally. Don't set low `max_tokens` or `content` will be `None`. Omit, set 500+, or disable with `reasoning_effort=None`. |
 | **TTS pitch/loudness** | NOT supported on Bulbul v3 — API returns 400. Only `pace` works. |
 | **STT WebSocket codecs** | Only `wav`/`pcm` — no MP3/AAC/OGG for streaming. |
