@@ -8,7 +8,7 @@ description: >-
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "3.4"
+  version: "3.5"
 ---
 
 # Speech-to-Text — Saaras
@@ -82,6 +82,7 @@ async def stream_audio():
     client = AsyncSarvamAI()
     async with client.speech_to_text_streaming.connect(
         model="saaras:v3",
+        language_code="hi-IN",   # required — connect() now rejects a missing language_code
         high_vad_sensitivity=True,
         flush_signal=True
     ) as ws:
@@ -96,6 +97,8 @@ asyncio.run(stream_audio())
 ```
 
 No fixed session duration limit — but the connection closes after **60 seconds of inactivity**. Use `sample_rate=8000` for telephony audio.
+
+Verified live: `connect()` currently raises `TypeError: ... missing 1 required keyword-only argument: 'language_code'` if you omit it — it is not optional in the installed SDK, despite not being marked required in some docs examples.
 
 ## Realtime Streaming (New — `saaras:v3-realtime` / `saaras:v4`)
 
@@ -144,8 +147,8 @@ JS: `client.speechToTextRealtimeStreaming.connect({ language_code, stream_type }
 | **Flush signal** | `flush_signal=True` + `await ws.flush()` forces immediate transcription boundary. |
 | **VAD events** | `vad_signals=True` emits `START_SPEECH`/`END_SPEECH` events alongside transcripts. `high_vad_sensitivity=True` for automatic end-of-speech detection. |
 | **Short audio detection** | Set `language_code` explicitly for audio <3 seconds — auto-detection needs more signal. |
-| **`keyterms` is v4-only** | Accepted with `model="saaras:v4"` on REST, Batch, and **both** WebSocket streaming endpoints (legacy `/speech-to-text/ws` and realtime). Not supported on `saaras:v3` at all. Format: JSON list of strings, max 50 terms, 64 chars each — don't use the older `keyterm`/`hotwords` fields. |
-| **`keyterms` JS support is incomplete right now** | JS `speechToText.transcribe({..., keyterms})` (REST) has **not shipped to npm yet** as of this writing — only `speechToTextJob.createJob({..., keyterms})` (Batch, needs `sarvamai@>=1.1.10-alpha.1`) works in JS today. Use the REST cURL/Python path or Batch if you need `keyterms` from JS. Python needs `sarvamai>=0.1.33a1` (REST) / `>=0.1.33a3` (Batch). Re-check npm before assuming REST is fixed. |
+| **`keyterms` is v4-only** | Accepted with `model="saaras:v4"` on REST, Batch, and **both** WebSocket streaming endpoints (legacy `/speech-to-text/ws` and realtime). Verified live: `saaras:v3` + `keyterms` returns `400` — `"'keyterms' is only supported by model 'saaras:v4', got 'saaras:v3'."` — a hard error, not a silent ignore. Format: JSON list of strings, max 50 terms, 64 chars each — don't use the older `keyterm`/`hotwords` fields. |
+| **`keyterms` JS support** | Docs (as of this writing) say JS `speechToText.transcribe({..., keyterms})` hasn't shipped to npm, with only `speechToTextJob.createJob({..., keyterms})` (Batch) working. Verified live against `sarvamai@1.1.10`: REST `transcribe({..., keyterms})` **worked without error** — the docs note may already be stale. Don't trust either source blindly; the gap may be closed by the time you read this — test the actual call once. Python needs `sarvamai>=0.1.33a1` (REST) / `>=0.1.33a3` (Batch) either way. |
 | **Realtime vs legacy streaming are different endpoints** | Legacy WebSocket (`/speech-to-text/ws`, `speech_to_text_streaming`) has no interim results and needs a reconnect to change params. Realtime (`/speech-to-text-realtime/ws`, `speech_to_text_realtime_streaming`) adds `transcript.partial` events, millisecond VAD params (`threshold`, `silence_duration_ms`, `min_speech_duration_ms`), and live `config.update` — don't mix the two APIs' parameter names. |
 | **Realtime sample rate** | Only `8000` or `16000` Hz — any other value closes the connection with code `4000`. |
 
