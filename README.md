@@ -32,6 +32,9 @@ The [vibe-coding](./vibe-coding) skill is **stack- and vendor-agnostic**—it is
 | [text-to-speech](./text-to-speech) | **SDK** — Bulbul v3 REST/stream/WebSocket, pronunciation dicts, v3 param traps. |
 | [translate/text](./translate/text) | **SDK** — Mayura / Sarvam-Translate text translation signatures and silent failures. |
 | [translate/document](./translate/document) | **SDK** — Document Translation API: async create → upload → start → poll → export pipeline for PDF, Word, Excel, PowerPoint, HTML. |
+| [doc-ai](./doc-ai) | **SDK** — Sarvam Vision Document AI: `doc_ai.digitise()`/`.extract()` OCR and schema-based field extraction. |
+| [voice-cloning](./voice-cloning) | **SDK** — Clone a voice from a reference clip, generate cross-lingual speech with it. |
+| [dubbing](./dubbing) | **SDK** — Dubbing API: async create → upload → start → poll pipeline for video/audio localization with voice cloning. |
 | [voice-agents](./voice-agents) | **SDK** — LiveKit / Pipecat real-time voice agents. |
 | [vibe-coding](./vibe-coding) | **Vendor-neutral** agent habits (slice → verify → iterate). Pair with a domain skill for APIs. |
 
@@ -46,6 +49,9 @@ npx skills add sarvamai/skills --skill sarvam-mcp
 npx skills add sarvamai/skills --skill chat
 npx skills add sarvamai/skills --skill translate/text
 npx skills add sarvamai/skills --skill translate/document
+npx skills add sarvamai/skills --skill doc-ai
+npx skills add sarvamai/skills --skill voice-cloning
+npx skills add sarvamai/skills --skill dubbing
 npx skills add sarvamai/skills --skill vibe-coding
 
 # Browse skills interactively

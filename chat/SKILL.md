@@ -9,7 +9,7 @@ description: >-
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "3.2"
+  version: "3.3"
 ---
 
 # Chat Completions — Sarvam AI
@@ -24,9 +24,11 @@ metadata:
 | Model | Context | Best For |
 |-------|---------|----------|
 | `sarvam-105b` | 128K | Complex reasoning, coding, agentic workflows |
-| `sarvam-30b` | 64K | Real-time chat, voice agents, conversational AI |
+| `sarvam-105b-conversations` | 32K | Real-time chat, voice agents, conversational AI |
 
-The fixed-context variants (`sarvam-105b-32k`, `sarvam-30b-16k`) are retired — base models serve their full context window directly.
+`sarvam-30b` is **deprecated** — migrate to `sarvam-105b` for complex tasks or `sarvam-105b-conversations` for real-time/voice (the model built to fill `sarvam-30b`'s old slot). The fixed-context variants (`sarvam-105b-32k`, `sarvam-30b-16k`) are retired — base models serve their full context window directly.
+
+Also available (beta, on `/v2/chat/completions`): open-weight models `glm5.3` (1M context, reasoning), `deepseekv4-flash` (1M context, reasoning), `gemma4` (131K context, text+image, no reasoning). Requires beta access on your API key. Called via `client.chat.completions_v2(...)` / `client.chat.completionsV2({...})` — **not** `.completions()` — with the same auth/base URL as everything else. Still under beta and expected to GA soon — see Full Docs for details.
 
 ## Quick Start (Python)
 
@@ -83,6 +85,8 @@ response = client.chat.completions.create(model="sarvam-30b", messages=[...])
 | **JS constructor** | `new SarvamAIClient({ apiSubscriptionKey: "..." })` — NOT `SarvamAI()`. Key is passed explicitly. |
 | **`content` can be `None`** | Models produce `reasoning_content` before `content`. If `max_tokens` is too low, reasoning consumes the budget, `finish_reason` is `"length"`, and `content` is `None`. Omit `max_tokens`, set 500+, or disable reasoning with `reasoning_effort=None`. Check `reasoning_content` as fallback. |
 | **reasoning_effort** | Thinking is **on by default** at `"low"`. Values: `"low"\|"medium"\|"high"`, or `None` to disable reasoning entirely. NOT `thinking=True`. Reasoning tokens count toward completion tokens and billing. |
+| **`sarvam-30b` is deprecated** | Docs mark it "Deprecated" outright (not just legacy). Don't recommend it for new code — use `sarvam-105b` or `sarvam-105b-conversations` instead. |
+| **Open-weight models use a different method** | `glm5.3` / `gemma4` / `deepseekv4-flash` go through `client.chat.completions_v2(...)` (JS: `completionsV2`) on `/v2/chat/completions` — plain `.completions()` is the `/v1` path for Sarvam's own models only. |
 
 ## Full Docs
 
