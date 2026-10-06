@@ -25,10 +25,10 @@ Most audio tools accept one of:
 
 | Tool | Use for | Notes |
 |------|---------|-------|
-| `tts_speak` | Text → file | `bulbul:v3`; output per `SARVAM_AUDIO_OUTPUT_MODE` |
+| `tts_speak` | Text → file | Connected schema wins. If it lists `bulbul:v4-flash`, use that plus a persona ID. If the enum is still `bulbul:v3` only, stay on v3 / `priya`. Output per `SARVAM_AUDIO_OUTPUT_MODE` |
 | `tts_stream` | Lower-latency stream | When client handles streams |
 
-Speaker default: `priya`. Pace only on v3 — no `pitch`/`loudness`. Native-script Indic text.
+SDK code (not this MCP server) should use `bulbul:v4-flash` and a `voice_language_style` speaker — see the text-to-speech skill. On v3, pace only — no `pitch`/`loudness`. On v4-flash, `pitch` is −0.5–0.5 and `loudness` is 0.1–2.5. Native-script Indic text.
 
 ### Text / LLM / vision
 
@@ -41,7 +41,7 @@ Speaker default: `priya`. Pace only on v3 — no `pitch`/`loudness`. Native-scri
 | `llm_complete` | Chat (`sarvam-30b` default, `sarvam-105b` flagship) |
 | `vision_extract` | Document intelligence |
 | `vision_job_status` | Poll vision job |
-| `pronunciation_*` | Dict CRUD (bulbul:v3) |
+| `pronunciation_*` | Dict CRUD; pass `dict_id` on v3 and v4-flash TTS calls |
 | `set_api_key` | Persist key to `~/.sarvam/credentials` |
 
 Prefix every name above with `sarvam_tools_`.
@@ -65,7 +65,7 @@ Safe for drafting integrations (no user-content generation credits, except live-
 | `api_reference` | Known endpoint path → request/response |
 | `snippet` | `stt`/`tts`/`translate`/`llm` × `python`/`javascript`/`typescript`/`curl` |
 | `languages` | Coverage for `stt`/`tts`/`translate`/… |
-| `speakers` | `bulbul:v3` / `v2` / beta |
+| `speakers` | Connected tool may still enum `bulbul:v3` / `v2` / beta only. v4 Flash catalog (222 persona IDs) is on the Voices doc, not necessarily in this tool. |
 | `validate_request` | Draft body lint before ship |
 | `search_docs` | docs.sarvam.ai search |
 | `pricing` | Billing structure (confirm on dashboard) |
