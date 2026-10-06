@@ -29,7 +29,7 @@ The [vibe-coding](./vibe-coding) skill is **stack- and vendor-agnostic**—it is
 | [sarvam-mcp](./sarvam-mcp) | **MCP (any harness)** — live `sarvam_tools_*` vs build-time `sarvam_code_*`, composites, auth, install. Use for in-chat Sarvam actions. |
 | [chat](./chat) | **SDK** — Sarvam-105B/30B completions, streaming, reasoning, `content=None` gotcha. |
 | [speech-to-text](./speech-to-text) | **SDK** — Saaras v3 REST, Batch + diarization, WebSocket streaming. |
-| [text-to-speech](./text-to-speech) | **SDK** — Bulbul v3 REST/stream/WebSocket, pronunciation dicts, v3 param traps. |
+| [text-to-speech](./text-to-speech) | **SDK** — Bulbul v4 Flash persona voices, REST/stream/WebSocket, pronunciation dicts, v3/v4 param traps. |
 | [translate/text](./translate/text) | **SDK** — Mayura / Sarvam-Translate text translation signatures and silent failures. |
 | [translate/document](./translate/document) | **SDK** — Document Translation API: async create → upload → start → poll → export pipeline for PDF, Word, Excel, PowerPoint, HTML. |
 | [voice-agents](./voice-agents) | **SDK** — LiveKit / Pipecat real-time voice agents. |
@@ -81,7 +81,7 @@ Full API docs, OpenAPI spec, cookbooks, voice catalog, streaming protocols...
 
 - **SDK call signatures** that differ from conventions (e.g., no `.create()` on chat)
 - **Parameters that silently fail** (e.g., `output_script` ignored on sarvam-translate)
-- **Parameters that error** (e.g., `pitch`/`loudness` returns 400 on Bulbul v3)
+- **Parameters that error** (e.g., v3 short names like `shubh` on `bulbul:v4-flash`; `pitch`/`loudness` returns 400 on Bulbul v3)
 - **Non-trivial SDK patterns** (e.g., Batch API job chain, WebSocket async connect)
 
 For everything else — full parameter tables, voice catalogs, language codes, rate limits, cookbook examples — the skill points to [llms.txt](https://docs.sarvam.ai/llms.txt), which is always up to date.

@@ -8,7 +8,7 @@ description: >-
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "3.3"
+  version: "3.4"
 ---
 
 # Voice Agents — Sarvam AI
@@ -42,8 +42,8 @@ class VoiceAgent(Agent):
             llm=sarvam.LLM(model="sarvam-105b"),
             tts=sarvam.TTS(
                 target_language_code="en-IN",
-                model="bulbul:v3",
-                speaker="shubh"
+                model="bulbul:v4-flash",
+                speaker="simran_en_customer",
             ),
         )
 
@@ -87,10 +87,12 @@ stt = SarvamSTTService(
 )
 tts = SarvamTTSService(
     api_key=os.getenv("SARVAM_API_KEY"),
-    target_language_code="en-IN",
-    model="bulbul:v3",
-    speaker="anand",
-    pace=1.0
+    settings=SarvamTTSService.Settings(
+        model="bulbul:v4-flash",
+        voice="simran_en_customer",  # persona ID — not a v3 short name
+        language="en-IN",
+        pace=1.0,
+    ),
 )
 llm = SarvamLLMService(
     api_key=os.getenv("SARVAM_API_KEY"),
@@ -130,11 +132,12 @@ const client = new SarvamAIClient({ apiSubscriptionKey: "YOUR_SARVAM_API_KEY" })
 |--------|--------|
 | **LiveKit: no `vad=`** | Do NOT pass `vad=` to `AgentSession` — VAD is handled internally by the Sarvam plugin. Set `turn_detection="stt"` and `min_endpointing_delay=0.07` instead. |
 | **LiveKit: `flush_signal=True`** | Required on `sarvam.STT` for speech start/end events and proper turn-taking. |
-| **TTS param is `speaker`** | Both LiveKit and Pipecat plugins use `speaker="shubh"` — NOT `voice=`. |
+| **TTS voice params differ by plugin** | LiveKit (`livekit-plugins-sarvam` through 1.5.2): `target_language_code` + `speaker`. `language_code=` on `sarvam.TTS()` is rejected. Pipecat (1.0): `settings=SarvamTTSService.Settings(voice=..., language=..., model=...)` — `voice`, not `speaker`, and not bare constructor kwargs. |
+| **v4 speakers are persona IDs** | `model="bulbul:v4-flash"` needs `voice_language_style` (`simran_en_customer`, `aparna_hi_customer`). Short names (`shubh`, `anand`, `priya`) 400. LiveKit defaults a missing speaker to `anushka` when the model is not v3 — always pass `speaker`. Hindi: `aparna_hi_customer`. Tamil: `gokul_ta_narration`. No v4 personas for `ml-IN` / `od-IN` — use `bulbul:v3` there. |
 | **Pipecat class names** | `SarvamSTTService`/`SarvamTTSService`/`SarvamLLMService` from `pipecat.services.sarvam.stt/.tts/.llm` — NOT `SarvamSTT`. LLM model goes in `SarvamLLMService.Settings(model=...)`, system prompt in `LLMContext` messages. |
 | **`sarvam-30b` is deprecated** | Docs list it under Legacy Models ("migrate to Sarvam-105B"), and `sarvamai` ≥0.1.29 types chat as `SarvamModelIds = Literal["sarvam-105b"]`. Pipecat rejects it outright — `SarvamLLMService._SUPPORTED_MODELS = frozenset({"sarvam-105b"})`, so a non-105b model raises `ValueError` at construction. Use `sarvam-105b` for voice too. |
 | **`max_tokens` budget** | Sarvam models reason internally. Don't set low `max_tokens` or `content` will be `None`. Omit, set 500+, or disable with `reasoning_effort=None`. |
-| **TTS pitch/loudness** | NOT supported on Bulbul v3 — API returns 400. Only `pace` works. |
+| **TTS pitch/loudness** | On `bulbul:v4-flash`, `pitch` is −0.5–0.5 and `loudness` is 0.1–2.5. On Bulbul v3 the API returns 400 — only `pace` (0.5–2.0) works. |
 | **STT WebSocket codecs** | Only `wav`/`pcm` — no MP3/AAC/OGG for streaming. |
 | **HTTP Stream for TTS** | `convert_stream` returns binary audio directly (no base64), better for pipelines. |
 | **Telephony** | For phone agents (e.g. Exotel), set `audio_in_sample_rate=8000` and `audio_out_sample_rate=8000` to match telephony audio. |
@@ -146,4 +149,5 @@ Fetch framework integration guides, environment setup, and advanced patterns fro
 - **https://docs.sarvam.ai/llms.txt** — comprehensive docs index
 - [LiveKit Guide](https://docs.sarvam.ai/api/integration/build-voice-agent-with-live-kit)
 - [Pipecat Guide](https://docs.sarvam.ai/api/integration/build-voice-agent-with-pipecat)
+- [Bulbul v4 Flash voices](https://docs.sarvam.ai/api/api-guides-tutorials/text-to-speech/voices)
 - [Rate Limits](https://docs.sarvam.ai/api/ratelimits)
