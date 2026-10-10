@@ -25,7 +25,7 @@ metadata:
 |-------|---------|--------|----------|
 | `sarvam-105b` | 128K | **Recommended** | Complex reasoning, coding, agentic workflows |
 | `sarvam-105b-conversations` | 32K | Conversational | Real-time chat, voice agents, conversational AI |
-| `sarvam-30b` | 64K | **Deprecated** | Legacy only — prefer `sarvam-105b` for new work (voice latency exceptions: see [voice-agents](../voice-agents)) |
+| `sarvam-30b` | 64K | **Deprecated** | Legacy only — prefer `sarvam-105b` for new work |
 
 Public docs and the cookbook allowlist (`sarvam_api_rules.json`) treat **`sarvam-105b` as the source of truth** for new integrations. Do not start new examples on `sarvam-30b`.
 
